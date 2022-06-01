@@ -36,7 +36,7 @@ func mustBeNil(err error, msg string) {
 func printThumbnail(path string) {
 	thumbnail, err := os.ReadFile(path)
 	mustBeNil(err, "failed to read the thumbnail from the file system")
-	fmt.Printf("| templateImage=%s", string(thumbnail))
+	fmt.Printf("| templateImage=%s\n", string(thumbnail))
 }
 
 func printFirstEntry(texts []string) {
