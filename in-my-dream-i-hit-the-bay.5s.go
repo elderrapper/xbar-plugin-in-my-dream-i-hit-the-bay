@@ -1,3 +1,4 @@
+//usr/bin/env go run $0 $@; exit
 package main
 
 // <xbar.title>In My Dream I Hit The Bay</xbar.title>
@@ -44,7 +45,7 @@ func printFirstEntry(texts []string) {
 	fmt.Println(texts[idx])
 }
 
-func printSecondEntry(text, imgPath string) {	
+func printSecondEntry(text, imgPath string) {
 	fmt.Println(text)
 
 	img, err := os.ReadFile(imgPath)
