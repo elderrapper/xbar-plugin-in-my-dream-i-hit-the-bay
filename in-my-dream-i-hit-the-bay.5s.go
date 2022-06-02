@@ -23,8 +23,11 @@ const (
 )
 
 var (
-	// The .B64 file is obtained by base64-encoding this image:
-	// https://img.favpng.com/11/18/10/tightrope-walking-computer-icons-youtube-png-favpng-qcQdAyeKgpbCPdmQeaU9757iD.jpg
+	// To get the .B64 file, follow these steps:
+	// 1. Download https://img.favpng.com/11/18/10/tightrope-walking-computer-icons-youtube-png-favpng-qcQdAyeKgpbCPdmQeaU9757iD.jpg
+	// 2. Resize the image to be 30x19 via https://www.iloveimg.com/resize-image#resize-options,pixels
+	//    because a menu bar icon cannot be too large.
+	// 3. Base64-encode the resulting image via https://elmah.io/tools/base64-image-encoder/.
 	//go:embed man-walking-on-a-tightrope.B64
 	manWalkingOnATightropeB64 string
 
