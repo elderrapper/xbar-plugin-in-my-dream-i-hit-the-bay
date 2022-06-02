@@ -20,6 +20,7 @@ import (
 
 const (
 	secondEntryText = "thoughts"
+	monoSpaceFont   = "font=Menlo"
 )
 
 var (
@@ -39,7 +40,12 @@ var (
 	//    Otherwise, when the image is converted to be an .ans one,
 	//    the color of a "transparent" pixel in the .png file will be left blank (e.g., ESC[38;5;m)
 	//    and the ANSI parser will complain about that.
-	// 3. Convert th e.jpg file to be an .ans one using
+	// 3. Use some tool to crop part of the top and bottom blanks of the image.
+	//    Otherwise, those blanks become empty lines in the menu,
+	//    and we don't want too much of them as screen space is precious.
+	// 4. Widen the image via https://www.iloveimg.com/resize-image#resize-options,pixels
+	//    because the spacing between the lines in the menu makes the image look vertically stretched.
+	// 5. Convert the resulting file to be an .ans one using
 	//    https://manytools.org/hacker-tools/convert-images-to-ascii-art/.
 	//go:embed "stack-overflow-logo.ans"
 	stackOverflowLogo string
@@ -76,7 +82,7 @@ func printSecondEntry(text, img string) {
 			row, err := ansi.Parse(img[start:i])
 			mustBeNil(err, "failed to parse the row into ANSI sequences")
 
-			fmt.Printf("--%s\n", ansi.String(row))
+			fmt.Printf("--%s | %s\n", ansi.String(row), monoSpaceFont)
 			start = i + 1
 		}
 	}
