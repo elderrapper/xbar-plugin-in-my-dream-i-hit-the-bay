@@ -46,8 +46,12 @@ var (
 	//    and we don't want too much of them as screen space is precious.
 	// 4. Widen the image via https://www.iloveimg.com/resize-image#resize-options,pixels
 	//    because the spacing between the lines in the menu makes the image look vertically stretched.
-	// 5. Convert the resulting file to be an .ans one using
+	// 5. Convert the resulting file to be an .ans one (width = 100) using
 	//    https://manytools.org/hacker-tools/convert-images-to-ascii-art/.
+	// 6. Manually remove the first ANSI sequence (i.e., ESC[30;107m) to prevent the parsing error from xbar
+	//    because it's still using leaanthony/go-ansi-parser@v1.2.0
+	//    (https://github.com/matryer/xbar/blob/c6fa2be71000f6665e2b68011506d4c0dce24268/app/go.mod#L12),
+	//    which does not include the fix for https://github.com/leaanthony/go-ansi-parser/issues/3.
 	//go:embed "stack-overflow-logo.ans"
 	stackOverflowLogo string
 
