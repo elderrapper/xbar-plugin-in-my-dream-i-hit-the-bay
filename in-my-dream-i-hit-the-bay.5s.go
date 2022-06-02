@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/leaanthony/go-ansi-parser"
 )
@@ -64,6 +65,7 @@ func printThumbnail(thumbnail string) {
 }
 
 func printFirstEntry(texts []string) {
+	rand.Seed(time.Now().UnixNano())
 	idx := rand.Intn(len(texts))
 	fmt.Println(texts[idx])
 }
