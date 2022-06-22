@@ -19,14 +19,14 @@ import (
 )
 
 const (
-	firstEntryText1 = "Everything will be fine."
-	firstEntryText2 = "Nah, it's just a fairy tale."
 	secondEntryText = "thoughts"
 	monoSpaceFont   = "font=Menlo"
 
 	esc                 = "\x1B"
 	moveUpTmpl          = esc + "[%dA"
 	eraseCurrentLineSeq = esc + "[2K"
+
+	firstEntryRotationInterval = 2 * time.Second
 )
 
 var (
@@ -37,6 +37,8 @@ var (
 	// 3. Base64-encode the resulting image via https://elmah.io/tools/base64-image-encoder/.
 	//go:embed man-walking-on-a-tightrope.B64
 	manWalkingOnATightropeB64 string
+
+	firstEntryTexts = []string{"Everything will be fine.", "Nah, it's just a fairy tale."}
 
 	// To get the .ans file, follow these steps:
 	// 1. Download https://commons.wikimedia.org/wiki/File:Stack_Overflow_icon.svg.
@@ -109,13 +111,15 @@ func eraseCurrentLine() {
 func main() {
 	printThumbnail(manWalkingOnATightropeB64)
 	printSeparator()
-	fmt.Println(firstEntryText1)
+	fmt.Println()
 	printSeparator()
 	n := printSecondEntry(secondEntryText, stackOverflowLogo)
 
-	time.Sleep(2 * time.Second)
 	// 3 = the first entry + the separator between the first entry and the second entry + text portion of the second entry
 	moveCursorUp(n + 3)
-	eraseCurrentLine()
-	fmt.Println(firstEntryText2)
+	for i := 0; ; i++ {
+		eraseCurrentLine()
+		fmt.Printf("\r%s", firstEntryTexts[i%2])
+		time.Sleep(firstEntryRotationInterval)
+	}
 }
