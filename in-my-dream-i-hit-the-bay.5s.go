@@ -65,7 +65,7 @@ func mustBeNil(err error, msg string) {
 }
 
 func printThumbnail(thumbnail string) {
-	fmt.Printf("| templateImage=%s\n", string(thumbnail))
+	fmt.Printf("| templateImage=%s\n", thumbnail)
 }
 
 func printFirstEntry(texts []string) {
@@ -81,10 +81,10 @@ func printSecondEntry(text, img string) {
 	for i := 0; i < len(img); i++ {
 		if img[i] == '\n' {
 			// The ansi library is used because
-			// it reset all modes (i.e., ESC[0m) at the end of each ANSI sequence.
+			// it resets all modes (i.e., ESC[0m) at the end of each ANSI sequence.
 			// The implication is that when printing '--',
 			// those strings won't be stylized by the last ANSI sequence
-			// as the original .ans file does not necessarily reset all modes at the end of each sequence.
+			// as the original .ans file does not necessarily reset all the modes at the end of each sequence.
 			row, err := ansi.Parse(img[start:i])
 			mustBeNil(err, "failed to parse the row into ANSI sequences")
 
