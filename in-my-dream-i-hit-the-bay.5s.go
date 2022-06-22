@@ -13,15 +13,20 @@ import (
 	_ "embed"
 	"fmt"
 	"log"
-	"math/rand"
 	"time"
 
 	"github.com/leaanthony/go-ansi-parser"
 )
 
 const (
+	firstEntryText1 = "Everything will be fine."
+	firstEntryText2 = "Nah, it's just a fairy tale."
 	secondEntryText = "thoughts"
 	monoSpaceFont   = "font=Menlo"
+
+	esc                 = "\x1B"
+	moveUpTmpl          = esc + "[%dA"
+	eraseCurrentLineSeq = esc + "[2K"
 )
 
 var (
@@ -54,8 +59,6 @@ var (
 	//    which does not include the fix for https://github.com/leaanthony/go-ansi-parser/issues/3.
 	//go:embed "stack-overflow-logo.ans"
 	stackOverflowLogo string
-
-	firstEntryAlternatingTexts = []string{"Everything will be fine.", "Nah, it's just a fairy tale."}
 )
 
 func mustBeNil(err error, msg string) {
@@ -68,40 +71,51 @@ func printThumbnail(thumbnail string) {
 	fmt.Printf("| templateImage=%s\n", thumbnail)
 }
 
-func printFirstEntry(texts []string) {
-	rand.Seed(time.Now().UnixNano())
-	idx := rand.Intn(len(texts))
-	fmt.Println(texts[idx])
-}
-
-func printSecondEntry(text, img string) {
+// printSecondEntry returns the height of the image.
+func printSecondEntry(text, image string) int {
 	fmt.Println(text)
 
-	start := 0
-	for i := 0; i < len(img); i++ {
-		if img[i] == '\n' {
+	start, n := 0, 0
+	for i := 0; i < len(image); i++ {
+		if image[i] == '\n' {
 			// The ansi library is used because
 			// it resets all modes (i.e., ESC[0m) at the end of each ANSI sequence.
 			// The implication is that when printing '--',
 			// those strings won't be stylized by the last ANSI sequence
 			// as the original .ans file does not necessarily reset all the modes at the end of each sequence.
-			row, err := ansi.Parse(img[start:i])
+			row, err := ansi.Parse(image[start:i])
 			mustBeNil(err, "failed to parse the row into ANSI sequences")
 
 			fmt.Printf("--%s | %s\n", ansi.String(row), monoSpaceFont)
 			start = i + 1
+			n++
 		}
 	}
+	return n
 }
 
 func printSeparator() {
 	fmt.Println("---")
 }
 
+func moveCursorUp(n int) {
+	fmt.Printf(moveUpTmpl, n)
+}
+
+func eraseCurrentLine() {
+	fmt.Print(eraseCurrentLineSeq)
+}
+
 func main() {
 	printThumbnail(manWalkingOnATightropeB64)
 	printSeparator()
-	printFirstEntry(firstEntryAlternatingTexts)
+	fmt.Println(firstEntryText1)
 	printSeparator()
-	printSecondEntry(secondEntryText, stackOverflowLogo)
+	n := printSecondEntry(secondEntryText, stackOverflowLogo)
+
+	time.Sleep(2 * time.Second)
+	// 3 = the first entry + the separator between the first entry and the second entry + text portion of the second entry
+	moveCursorUp(n + 3)
+	eraseCurrentLine()
+	fmt.Println(firstEntryText2)
 }
