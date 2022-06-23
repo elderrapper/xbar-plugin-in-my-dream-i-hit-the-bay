@@ -13,6 +13,7 @@ import (
 	_ "embed"
 	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/leaanthony/go-ansi-parser"
@@ -21,12 +22,6 @@ import (
 const (
 	secondEntryText = "thoughts"
 	monoSpaceFont   = "font=Menlo"
-
-	esc                 = "\x1B"
-	moveUpTmpl          = esc + "[%dA"
-	eraseCurrentLineSeq = esc + "[2K"
-
-	firstEntryRotationInterval = 2 * time.Second
 )
 
 var (
@@ -37,8 +32,6 @@ var (
 	// 3. Base64-encode the resulting image via https://elmah.io/tools/base64-image-encoder/.
 	//go:embed man-walking-on-a-tightrope.B64
 	manWalkingOnATightropeB64 string
-
-	firstEntryTexts = []string{"Everything will be fine.", "Nah, it's just a fairy tale."}
 
 	// To get the .ans file, follow these steps:
 	// 1. Download https://commons.wikimedia.org/wiki/File:Stack_Overflow_icon.svg.
@@ -61,6 +54,8 @@ var (
 	//    which does not include the fix for https://github.com/leaanthony/go-ansi-parser/issues/3.
 	//go:embed "stack-overflow-logo.ans"
 	stackOverflowLogo string
+
+	firstEntryAlternatingTexts = []string{"Everything will be fine.", "Nah, it's just a fairy tale."}
 )
 
 func mustBeNil(err error, msg string) {
@@ -73,53 +68,40 @@ func printThumbnail(thumbnail string) {
 	fmt.Printf("| templateImage=%s\n", thumbnail)
 }
 
-// printSecondEntry returns the height of the image.
-func printSecondEntry(text, image string) int {
+func printFirstEntry(texts []string) {
+	rand.Seed(time.Now().UnixNano())
+	idx := rand.Intn(len(texts))
+	fmt.Println(texts[idx])
+}
+
+func printSecondEntry(text, img string) {
 	fmt.Println(text)
 
-	start, n := 0, 0
-	for i := 0; i < len(image); i++ {
-		if image[i] == '\n' {
+	start := 0
+	for i := 0; i < len(img); i++ {
+		if img[i] == '\n' {
 			// The ansi library is used because
 			// it resets all modes (i.e., ESC[0m) at the end of each ANSI sequence.
 			// The implication is that when printing '--',
 			// those strings won't be stylized by the last ANSI sequence
 			// as the original .ans file does not necessarily reset all the modes at the end of each sequence.
-			row, err := ansi.Parse(image[start:i])
+			row, err := ansi.Parse(img[start:i])
 			mustBeNil(err, "failed to parse the row into ANSI sequences")
 
 			fmt.Printf("--%s | %s\n", ansi.String(row), monoSpaceFont)
 			start = i + 1
-			n++
 		}
 	}
-	return n
 }
 
 func printSeparator() {
 	fmt.Println("---")
 }
 
-func moveCursorUp(n int) {
-	fmt.Printf(moveUpTmpl, n)
-}
-
-func eraseCurrentLine() {
-	fmt.Print(eraseCurrentLineSeq)
-}
-
 func main() {
 	printThumbnail(manWalkingOnATightropeB64)
 	printSeparator()
-	fmt.Println()
+	printFirstEntry(firstEntryAlternatingTexts)
 	printSeparator()
-	n := printSecondEntry(secondEntryText, stackOverflowLogo)
-
-	// 3 = the first entry + the separator between the first entry and the second entry + text portion of the second entry
-	moveCursorUp(n + 3)
-	for i := 0; ; i++ {
-		eraseCurrentLine()
-		fmt.Printf("\r%s", firstEntryTexts[i%2])
-		time.Sleep(firstEntryRotationInterval)
-	}
+	printSecondEntry(secondEntryText, stackOverflowLogo)
 }
